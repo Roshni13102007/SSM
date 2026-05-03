@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silent Stress Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- Ambient Background Blobs -->
+    <div class="ambient">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-inner">
+
+      <!-- Header -->
+      <div class="header">
+        <div>
+          <div class="header-title">How are you<br><em>feeling today?</em></div>
+          <div class="header-sub">Private. No judgment. Just you.</div>
+        </div>
+        <div class="status-pill">
+          <div class="silent-dot"></div>
+          <span>Silent</span>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <button class="tab active" onclick="showTab('checkin', this)">
+          <span class="tab-icon">◎</span> Check-in
+        </button>
+        <button class="tab" onclick="showTab('history', this)">
+          <span class="tab-icon">◈</span> History
+        </button>
+        <button class="tab" onclick="showTab('report', this)">
+          <span class="tab-icon">◑</span> Report
+        </button>
+      </div>
+
+      <!-- CHECK-IN TAB -->
+      <div class="section active" id="tab-checkin">
+
+        <div class="silent-banner">
+          <div class="silent-dot-green pulse"></div>
+          <span>Silent mode — no alerts, no notifications. Gentle nudges only.</span>
+        </div>
+
+        <div class="section-label">Select your current mood</div>
+
+        <div class="mood-grid">
+          <button class="mood-btn mood-happy" onclick="selectMood('happy', this)">
+            <div class="mood-emoji-wrap"><span class="icon">😊</span></div>
+            <span class="label">Happy</span>
+            <div class="mood-glow"></div>
+          </button>
+          <button class="mood-btn mood-neutral" onclick="selectMood('neutral', this)">
+            <div class="mood-emoji-wrap"><span class="icon">😐</span></div>
+            <span class="label">Neutral</span>
+            <div class="mood-glow"></div>
+          </button>
+          <button class="mood-btn mood-stressed" onclick="selectMood('stressed', this)">
+            <div class="mood-emoji-wrap"><span class="icon">😞</span></div>
+            <span class="label">Stressed</span>
+            <div class="mood-glow"></div>
+          </button>
+          <button class="mood-btn mood-tired" onclick="selectMood('tired', this)">
+            <div class="mood-emoji-wrap"><span class="icon">😴</span></div>
+            <span class="label">Tired</span>
+            <div class="mood-glow"></div>
+          </button>
+        </div>
+
+        <div class="note-wrapper">
+          <div class="note-label">Add a note</div>
+          <textarea
+            class="note-input"
+            id="note"
+            rows="2"
+            placeholder="Optional: what's on your mind? (only visible to you)"
+          ></textarea>
+        </div>
+
+        <button class="submit-btn" onclick="logMood()">
+          <span>Log this feeling</span>
+          <div class="btn-arrow">→</div>
+        </button>
+
+        <div id="feedback-area"></div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div class="section" id="tab-history">
+        <div class="section-label">Recent entries</div>
+        <div class="history-list" id="history-list">
+          <div class="empty-msg">
+            <div class="empty-icon">◎</div>
+            No entries yet. Log your first mood!
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORT TAB -->
+      <div class="section" id="tab-report">
+        <div class="section-label">This week at a glance</div>
+
+        <div class="metric-grid">
+          <div class="metric metric-total">
+            <div class="metric-val" id="r-total">0</div>
+            <div class="metric-lbl">check-ins</div>
+          </div>
+          <div class="metric metric-stress">
+            <div class="metric-val" id="r-stress">0</div>
+            <div class="metric-lbl">stressed</div>
+          </div>
+          <div class="metric metric-happy">
+            <div class="metric-val" id="r-happy">0</div>
+            <div class="metric-lbl">positive</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-label">Mood distribution</div>
+          <div class="chart-wrapper">
+            <canvas id="moodChart"></canvas>
+          </div>
+          <div id="chart-legend" class="chart-legend"></div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-header">
+            <div class="insight-icon">✦</div>
+            <div class="section-label" style="margin:0">Insight</div>
+          </div>
+          <div id="insight-text" class="insight-text">
+            Log a few moods to see your personalised insight here.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end .app-inner -->
+  </div><!-- end .app -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
