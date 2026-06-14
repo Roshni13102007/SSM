@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Silent Space — Mindfulness & Calm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 900: '#134e4a' },
+            slate: { 950: '#0b0f19' }
+          },
+          boxShadow: {
+            'premium': '0 20px 40px -15px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(15, 23, 42, 0.02)',
+            'premium-dark': '0 20px 40px -15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04)',
+            'inner-glow': 'inset 0 2px 4px 0 rgba(255, 255, 255, 0.40)',
+            'inner-glow-dark': 'inset 0 1px 2px 0 rgba(255, 255, 255, 0.08)',
+            'glow-brand': '0 0 30px rgba(20, 184, 166, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #fafbfd; transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent; }
+    .dark body { background-color: #0b0f19; }
+
+    /* Moving Ambient Gradient */
+    .ambient-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35; animation: drift 25s infinite ease-in-out alternate; }
+    .b1 { width: 500px; height: 500px; background: radial-gradient(circle, #a5f3fc 0%, #818cf8 100%); top: -10%; left: -10%; }
+    .b2 { width: 450px; height: 450px; background: radial-gradient(circle, #99f6e4 0%, #2dd4bf 100%); bottom: -10%; right: -10%; animation-delay: -7s; }
+    .b3 { width: 350px; height: 350px; background: radial-gradient(circle, #fbcfe8 0%, #fda4af 100%); top: 40%; left: 35%; animation-delay: -14s; }
+    
+    .dark .b1 { background: radial-gradient(circle, #1e1b4b 0%, #311042 100%); opacity: 0.25; }
+    .dark .b2 { background: radial-gradient(circle, #0d3b33 0%, #064e3b 100%); opacity: 0.25; }
+    .dark .b3 { background: radial-gradient(circle, #3b0764 0%, #1e1b4b 100%); opacity: 0.15; }
+
+    @keyframes drift {
+      0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      50% { transform: translate(40px, -60px) rotate(180deg) scale(1.15); }
+      100% { transform: translate(-20px, 40px) rotate(360deg) scale(0.9); }
+    }
+
+    /* Elegant Satin Glass Base */
+    .glass-panel { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.5); }
+    .dark .glass-panel { background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.05); }
+
+    /* Tabs Animation Frame */
+    .section { display: none; animation: slideUpSmooth 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .section.active { display: block; }
+    @keyframes slideUpSmooth { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Premium Bottom Navigation Active indicator */
+    .nav-btn { color: #64748b; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .dark .nav-btn { color: #94a3b8; }
+    .nav-btn.active { color: #0d9488; }
+    .dark .nav-btn.active { color: #2dd4bf; }
+    .nav-btn .nav-dot { width: 4px; height: 4px; border-radius: 50%; background-color: currentColor; opacity: 0; transform: scale(0.5); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .nav-btn.active .nav-dot { opacity: 1; transform: scale(1); }
+
+    /* Fine-tuned Interactive States */
+    .mood-btn { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: var(--tw-shadow-inner-glow); }
+    .dark .mood-btn { box-shadow: var(--tw-shadow-inner-glow-dark); }
+    .mood-btn:active { transform: scale(0.95); }
+    .cal-day { aspect-ratio: 1; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    .cal-day:hover { transform: scale(1.08) translateY(-2px); z-index: 10; }
+
+    /* Calendar Day Color Gradients */
+    .cd-empty { background: transparent; color: transparent; pointer-events: none; }
+    .cd-none  { background: rgba(241, 245, 249, 0.4); color: #94a3b8; }
+    .dark .cd-none { background: rgba(30, 41, 59, 0.3); color: #475569; }
+    .cd-happy { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
+    .cd-neutral { background: linear-gradient(135deg, #94a3b8, #64748b); color: white; box-shadow: 0 4px 12px rgba(100, 116, 139, 0.25); }
+    .cd-stressed { background: linear-gradient(135deg, #f87171, #e11d48); color: white; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25); }
+    .cd-tired { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="text-slate-800 dark:text-slate-100 min-h-screen relative font-sans overflow-x-hidden pb-10">
+
+<!-- Animated Backdrop Dynamic Gradient blobs -->
+<div class="ambient-bg">
+  <canvas class="fixed inset-0 w-full h-full opacity-65 z-0 pointer-events-none" id="stars-canvas"></canvas>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<div class="relative z-10 min-h-screen flex flex-col items-center">
+
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen" class="w-full min-h-screen flex items-center justify-center p-4">
+    <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-[2.5rem] p-10 w-full max-w-sm text-center border border-white/60 dark:border-white/5 relative overflow-hidden">
+      <div class="absolute -top-12 -left-12 w-24 h-24 bg-brand-500/10 rounded-full filter blur-xl"></div>
+      <div class="absolute -bottom-12 -right-12 w-24 h-24 bg-indigo-500/10 rounded-full filter blur-xl"></div>
+      
+      <div class="w-16 h-16 bg-brand-50/80 dark:bg-brand-900/30 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-6 shadow-sm">🌸</div>
+      <h1 class="text-2xl font-bold mb-2 tracking-tight text-slate-900 dark:text-white">Silent Space</h1>
+      <p class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">Your personal, soundless oasis. <br>No logins. Zero logs stored on servers.</p>
+      
+      <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Select an Avatar</p>
+      <div class="grid grid-cols-4 gap-3 mb-8" id="avatar-row">
+        <button class="av-btn sel w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-brand-500 flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'🌸')">🌸</button>
+        <button class="av-btn w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-transparent flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'🌿')">🌿</button>
+        <button class="av-btn w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-transparent flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'🌊')">🌊</button>
+        <button class="av-btn w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-transparent flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'☀️')">☀️</button>
+        <button class="av-btn w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-transparent flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'🌙')">🌙</button>
+        <button class="av-btn w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-transparent flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'🦋')">🦋</button>
+        <button class="av-btn w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-transparent flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'🧘')">🧘</button>
+        <button class="av-btn w-full h-12 rounded-xl text-xl bg-white/60 dark:bg-slate-800/40 border-2 border-transparent flex items-center justify-center transform active:scale-95 transition-all hover:scale-105" onclick="selectAv(this,'✨')">✨</button>
+      </div>
+      
+      <input id="setup-name" type="text" placeholder="Your name" maxlength="20" 
+             class="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 mb-6 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-center font-medium placeholder:text-slate-400">
+      
+      <button onclick="saveProfile()" class="w-full bg-slate-900 dark:bg-brand-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-brand-500/10 hover:shadow-xl hover:-translate-y-0.5 transform active:scale-[0.98] transition-all">
+        Enter Silent Space
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="main-app" style="display:none;" class="w-full max-w-lg w-full px-4 pt-6 pb-28">
+
+    <!-- TOP CONTROL PANEL -->
+    <header class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6 mb-6 flex flex-col gap-5 relative overflow-hidden">
+      <div class="absolute -top-10 -right-10 w-28 h-28 bg-brand-500/5 rounded-full filter blur-xl"></div>
+      <div class="flex justify-between items-center relative z-10">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white" id="hero-greeting">Hi, Friend</h2>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1" id="current-date-display">Silent Journey</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="theme-toggle" onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-slate-100/50 dark:bg-slate-800/40 flex items-center justify-center text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-700/40 transition-colors">
+            <i data-lucide="moon" class="w-4 h-4"></i>
+          </button>
+          <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-brand-100 to-white dark:from-slate-800 dark:to-slate-700 flex items-center justify-center text-2xl shadow-sm border border-slate-200/40 dark:border-slate-700 cursor-pointer transform active:scale-95 transition-all" id="hero-avatar" onclick="showTab('profile', document.getElementById('nav-profile'))">🌸</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 relative z-10">
+        <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30">
+          <div class="text-2xl font-extrabold text-brand-600 dark:text-brand-400 tracking-tight" id="streak-num">0</div>
+          <div class="text-[9px] uppercase font-bold tracking-widest text-slate-400 mt-1">Day Streak</div>
+        </div>
+        <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30">
+          <div class="text-2xl font-extrabold text-brand-600 dark:text-brand-400 tracking-tight" id="total-num">0</div>
+          <div class="text-[9px] uppercase font-bold tracking-widest text-slate-400 mt-1">Total Logs</div>
+        </div>
+      </div>
+
+      <div class="bg-slate-50/60 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+        <p class="text-xs font-medium italic text-slate-600 dark:text-slate-300 relative z-10 leading-relaxed" id="quote-text">Breathe in deep, exhale with relief.</p>
+        <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-wide relative z-10" id="quote-author">Mindful Moment</p>
+      </div>
+    </header>
+
+    <!-- TAB: CHECK-IN -->
+    <div class="section active" id="tab-checkin">
+      <div class="flex items-center gap-2 px-4 py-3 bg-brand-500/10 text-brand-800 dark:text-brand-300 rounded-2xl mb-6 text-xs font-semibold border border-brand-500/10">
+        <div class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-ping"></div>
+        Private & soundless space. Tap how you feel.
+      </div>
+
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6 mb-6 relative overflow-hidden group">
+        <canvas class="absolute inset-0 w-full h-full opacity-100 z-0 pointer-events-none" id="mood-stars"></canvas>
+        <div class="relative z-10">
+          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2">
+            <i data-lucide="heart" class="w-3.5 h-3.5 text-brand-500 fill-brand-500"></i> Mindful Check-In
+          </h3>
+          
+          <div class="grid grid-cols-3 gap-3 mb-5">
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('happy',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😊</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Happy</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('excited',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">🤩</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Excited</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('calm',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😌</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Calm</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('grateful',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">🙏</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Grateful</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('neutral',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😐</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Neutral</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('depressed',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😔</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Depressed</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('anxious',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😰</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Anxious</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('stressed',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😞</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Stressed</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('overwhelmed',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">🤯</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Overwhelmed</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('frustrated',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😤</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Frustrated</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('lonely',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">🥺</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Lonely</span></button>
+            <button class="mood-btn group bg-white/75 dark:bg-slate-800/40 rounded-2xl py-4 flex flex-col items-center gap-2 border-2 border-slate-100 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:-translate-y-1 transition-all duration-300" onclick="selectMood('tired',this)"><span class="text-3xl group-hover:scale-110 transition-transform duration-300">😴</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">Tired</span></button>
+          </div>
+
+          <textarea id="note" rows="2" placeholder="Write any fleeting thoughts (totally private)..."
+                    class="w-full bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 mb-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none placeholder:text-slate-400"></textarea>
+          
+          <button onclick="logMood()" class="w-full bg-slate-900 dark:bg-brand-600 text-white font-semibold py-3.5 rounded-xl shadow-md transform active:scale-[0.98] transition-all hover:bg-slate-800">
+            Log Feeling
+          </button>
+          <div id="feedback" class="mt-4"></div>
+        </div>
+      </div>
+
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2">
+          <i data-lucide="book-open" class="w-3.5 h-3.5 text-brand-500"></i> Mindful History
+        </h3>
+        <div id="history-list" class="flex flex-col">
+          <div class="py-8 text-center text-xs text-slate-400 font-medium">No records yet. Try your first log.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: BREATHE -->
+    <div class="section" id="tab-breathe">
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-8 mb-6 flex flex-col items-center">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-5 w-full flex items-center gap-2">
+          <i data-lucide="wind" class="w-3.5 h-3.5 text-brand-500"></i> Breath Training
+        </h3>
+        
+        <div class="flex gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl mb-10 w-full max-w-[280px]">
+          <button class="pat-btn sel flex-1 text-xs py-2 rounded-lg font-bold transition-all bg-white dark:bg-slate-800 shadow-sm text-slate-800 dark:text-white" onclick="setPattern('478',this)">4-7-8</button>
+          <button class="pat-btn flex-1 text-xs py-2 rounded-lg font-semibold transition-all text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" onclick="setPattern('box',this)">Box</button>
+          <button class="pat-btn flex-1 text-xs py-2 rounded-lg font-semibold transition-all text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" onclick="setPattern('simple',this)">Simple</button>
+        </div>
+
+        <div class="relative flex items-center justify-center w-60 h-60 mb-8">
+          <div class="absolute inset-0 rounded-full border border-dashed border-brand-500/20 dark:border-brand-500/10 animate-[spin_40s_linear_infinite] pointer-events-none"></div>
+          <div class="absolute inset-4 rounded-full border border-teal-500/10 dark:border-teal-500/5 animate-[spin_20s_linear_infinite] pointer-events-none"></div>
+          
+          <div id="breathe-circle-outer" class="absolute w-28 h-28 rounded-full bg-brand-500/10 dark:bg-brand-500/5 blur-md scale-125 transition-transform duration-1000 ease-in-out"></div>
+          <div id="breathe-circle-mid" class="absolute w-28 h-28 rounded-full bg-brand-400/20 dark:bg-brand-500/10 scale-110 transition-transform duration-1000 ease-in-out"></div>
+          
+          <div id="breathe-circle" class="w-28 h-28 rounded-full bg-gradient-to-tr from-brand-600 to-teal-400 shadow-glow-brand flex items-center justify-center relative z-10 transition-transform">
+             <span id="breathe-label" class="text-white font-extrabold text-xs text-center leading-tight tracking-wider uppercase drop-shadow-sm">Tap Start</span>
+          </div>
+        </div>
+
+        <div id="breathe-phase" class="text-lg font-bold text-slate-800 dark:text-white h-8 mb-1"></div>
+        <div id="breathe-counter" class="text-[10px] text-slate-400 dark:text-slate-500 font-bold h-4 mb-6 uppercase tracking-widest"></div>
+
+        <div class="flex gap-3 w-full">
+          <button id="start-btn" onclick="toggleBreathe()" class="flex-1 bg-slate-900 dark:bg-brand-600 text-white font-semibold py-3.5 rounded-xl shadow-md transform active:scale-95 transition-all">Start Exercise</button>
+          <button onclick="resetBreathe()" class="flex-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold py-3.5 rounded-xl border border-slate-200 dark:border-slate-800 transform active:scale-95 transition-all">Reset</button>
+        </div>
+        <p id="breathe-tip" class="text-xs text-center text-slate-400 dark:text-slate-500 mt-6 max-w-[260px] leading-relaxed">4-7-8 breathing calms the nervous system. Great for anxiety or before sleep.</p>
+      </div>
+    </div>
+
+    <!-- TAB: LUMI AI COMPANION -->
+    <div class="section" id="tab-lumi">
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6 mb-6 flex flex-col h-[520px]">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/85 pb-4 mb-4 shrink-0">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-400 to-indigo-500 flex items-center justify-center text-xl shadow-md">✨</div>
+              <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse"></div>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200">LUMI</h3>
+              <p class="text-[9px] text-emerald-500 font-bold tracking-wider flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Companion Active
+              </p>
+            </div>
+          </div>
+          <button onclick="clearLumiChat()" class="text-[10px] uppercase tracking-wider font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors flex items-center gap-1.5">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Chat
+          </button>
+        </div>
+
+        <div id="lumi-chat-box" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-1 scroll-smooth scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-800">
+          <!-- Messages will render dynamically here -->
+        </div>
+
+        <div id="lumi-typing" class="hidden items-center gap-1.5 px-3.5 py-2.5 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl w-fit mb-3 shrink-0">
+          <span class="text-[10px] text-slate-400 font-bold uppercase mr-1">Lumi is thinking</span>
+          <div class="w-1 h-1 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+          <div class="w-1 h-1 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0.15s"></div>
+          <div class="w-1 h-1 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto pb-3 scrollbar-none snap-x snap-mandatory shrink-0" id="lumi-quick-prompts">
+          <button onclick="sendQuickPrompt('I\'m feeling extremely overwhelmed right now.')" class="snap-start shrink-0 text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-800/40 border border-slate-200/40 dark:border-slate-800/50 px-3 py-1.5 rounded-xl hover:border-brand-500 transition-colors">Overwhelmed</button>
+          <button onclick="sendQuickPrompt('Analyze my latest stats and progress.')" class="snap-start shrink-0 text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-800/40 border border-slate-200/40 dark:border-slate-800/50 px-3 py-1.5 rounded-xl hover:border-brand-500 transition-colors">My Progress</button>
+          <button onclick="sendQuickPrompt('Can you suggest a fast stress relief exercise?')" class="snap-start shrink-0 text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-800/40 border border-slate-200/40 dark:border-slate-800/50 px-3 py-1.5 rounded-xl hover:border-brand-500 transition-colors">Fast Relief</button>
+          <button onclick="sendQuickPrompt('Give me a short motivation boost.')" class="snap-start shrink-0 text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-800/40 border border-slate-200/40 dark:border-slate-800/50 px-3 py-1.5 rounded-xl hover:border-brand-500 transition-colors">Motivation</button>
+        </div>
+
+        <div class="flex gap-2 shrink-0">
+          <input id="lumi-user-input" type="text" placeholder="Share your mind with Lumi..." 
+                 onkeypress="handleLumiKey(event)"
+                 class="flex-1 bg-white/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all placeholder:text-slate-400">
+          <button onclick="triggerLumiMessage()" class="bg-slate-900 dark:bg-brand-600 text-white rounded-xl w-11 h-11 flex items-center justify-center shadow-md transform active:scale-95 transition-all shrink-0">
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: FOCUS -->
+    <div class="section" id="tab-focus">
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6 mb-6">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-5 flex items-center gap-2">
+          <i data-lucide="compass" class="w-3.5 h-3.5 text-brand-500"></i> Configure Focus
+        </h3>
+        <div class="flex flex-col gap-4 mb-6">
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Subject / Target</label>
+            <input id="focus-topic" type="text" placeholder="e.g. Quiet Work, Reading..." class="w-full bg-white/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-medium placeholder:text-slate-400">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Duration</label>
+              <select id="focus-duration" class="w-full bg-white/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 appearance-none font-medium">
+                <option value="25">25 min (Pomodoro)</option>
+                <option value="45">45 min</option>
+                <option value="60">60 min</option>
+                <option value="90">90 min</option>
+                <option value="5">5 min (Test)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Daily target</label>
+              <select id="focus-goal" class="w-full bg-white/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 appearance-none font-medium">
+                <option value="1">1 session</option>
+                <option value="2">2 sessions</option>
+                <option value="3">3 sessions</option>
+                <option value="4">4 sessions</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button id="focus-start-btn" onclick="startFocus()" class="w-full bg-slate-900 dark:bg-brand-600 text-white font-semibold py-3.5 rounded-xl shadow-md flex justify-center items-center gap-2 transform active:scale-95 transition-all">
+          <i data-lucide="play" class="w-4 h-4 fill-current"></i> Start Focus Space
+        </button>
+      </div>
+
+      <div id="focus-timer-card" class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-8 mb-6 text-center" style="display:none;">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 flex items-center justify-center gap-2">
+          <i data-lucide="timer" class="w-3.5 h-3.5 text-brand-500 animate-pulse"></i> Space Session Active
+        </h3>
+        <div class="w-48 h-48 mx-auto rounded-full border border-brand-100 dark:border-slate-800 relative flex flex-col items-center justify-center mb-8 shadow-inner bg-slate-50/50 dark:bg-slate-950/40">
+           <div id="timer-display" class="text-5xl font-light tracking-tighter text-slate-800 dark:text-white font-mono">25:00</div>
+           <div id="timer-topic-display" class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-2 truncate max-w-[140px]">Studying</div>
+        </div>
+        <div class="flex gap-3 w-full">
+          <button id="timer-pause-btn" onclick="toggleFocus()" class="flex-1 bg-slate-900 dark:bg-brand-600 text-white font-semibold py-3.5 rounded-xl shadow-sm transform active:scale-95 transition-all">Pause</button>
+          <button onclick="stopFocus()" class="flex-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold py-3.5 rounded-xl border border-slate-200 dark:border-slate-800 transform active:scale-95 transition-all">Discard</button>
+        </div>
+      </div>
+
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4 flex items-center justify-between">
+          <span class="flex items-center gap-2"><i data-lucide="calendar-check" class="w-3.5 h-3.5 text-brand-500"></i> Session Tracker</span>
+          <span id="focus-goal-progress" class="text-[10px] bg-brand-100 text-brand-800 dark:bg-brand-900/30 dark:text-brand-300 px-2.5 py-1 rounded-lg font-bold"></span>
+        </h3>
+        <div id="focus-sessions" class="flex flex-col gap-2">
+           <div class="py-6 text-center text-xs text-slate-400 font-medium">No completed slots today.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: REPORT/STATS -->
+    <div class="section" id="tab-report">
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6 mb-6">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-brand-500"></i> Weekly Analysis
+        </h3>
+        <div class="grid grid-cols-3 gap-3 mb-6">
+          <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30">
+            <div class="text-2xl font-extrabold text-slate-800 dark:text-white" id="r-total">0</div>
+            <div class="text-[9px] uppercase font-bold text-slate-400 mt-1">Logs</div>
+          </div>
+          <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30">
+            <div class="text-2xl font-extrabold text-rose-500 dark:text-rose-400" id="r-stress">0</div>
+            <div class="text-[9px] uppercase font-bold text-slate-400 mt-1">Difficult</div>
+          </div>
+          <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30">
+            <div class="text-2xl font-extrabold text-emerald-500 dark:text-emerald-400" id="r-happy">0</div>
+            <div class="text-[9px] uppercase font-bold text-slate-400 mt-1">Positive</div>
+          </div>
+        </div>
+        
+        <div class="relative h-48 mb-6 mx-auto w-full">
+          <canvas id="moodChart"></canvas>
+        </div>
+        <div id="chart-legend" class="flex flex-wrap justify-center gap-4 text-[10px] font-bold uppercase tracking-wider text-slate-500"></div>
+        
+        <div id="insight" class="mt-6 p-4 bg-slate-50/80 dark:bg-slate-900/40 rounded-2xl text-xs text-slate-600 dark:text-slate-300 italic border border-slate-100 dark:border-slate-800 leading-relaxed text-center font-medium">
+          Log a few feelings to generate weekly reports.
+        </div>
+      </div>
+
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2">
+          <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-brand-500"></i> Heatmap Calendar
+        </h3>
+        <div id="heatmap-wrap" class="mb-5"></div>
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+          <span class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Positive</span>
+          <span class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-slate-400"></div> Neutral</span>
+          <span class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Difficult</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: CALENDAR -->
+    <div class="section" id="tab-calendar">
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <button onclick="changeMonth(-1)" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-850 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+          <div id="cal-month-label" class="text-base font-bold text-slate-850 dark:text-white tracking-tight">Month</div>
+          <button onclick="changeMonth(1)" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-850 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+        </div>
+        
+        <div class="grid grid-cols-7 gap-2 mb-2 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+        </div>
+        
+        <div id="cal-grid" class="grid grid-cols-7 gap-2 mb-6"></div>
+        
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[9px] font-bold text-slate-400 uppercase tracking-widest p-4 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-slate-100 dark:border-slate-900/50">
+          <span class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-emerald-400"></div> Positive</span>
+          <span class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-slate-400"></div> Neutral</span>
+          <span class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-rose-400"></div> Difficult</span>
+          <span class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-amber-400"></div> Tired</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PROFILE -->
+    <div class="section" id="tab-profile">
+      <div class="glass-panel shadow-premium dark:shadow-premium-dark rounded-3xl p-6">
+        <div class="text-center mb-8 relative">
+          <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-28 h-28 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="w-20 h-20 mx-auto bg-white/80 dark:bg-slate-800/80 rounded-full flex items-center justify-center text-4xl shadow-md border border-slate-100 dark:border-slate-700 relative z-10 mb-3" id="profile-avatar">🌸</div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white" id="profile-name">Companion</h2>
+          <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1" id="profile-since">Journey begun</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-8">
+          <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30 shadow-sm">
+            <div class="text-xl font-extrabold text-brand-600 dark:text-brand-400 tracking-tight" id="p-total">0</div>
+            <div class="text-[9px] uppercase font-bold text-slate-400 mt-1">Logs Count</div>
+          </div>
+          <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30 shadow-sm">
+            <div class="text-xl font-extrabold text-brand-600 dark:text-brand-400 tracking-tight" id="p-streak">0</div>
+            <div class="text-[9px] uppercase font-bold text-slate-400 mt-1">Day Streak</div>
+          </div>
+          <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30 shadow-sm">
+            <div class="text-xl font-extrabold text-brand-600 dark:text-brand-400 tracking-tight" id="p-happy">0%</div>
+            <div class="text-[9px] uppercase font-bold text-slate-400 mt-1">Positive Index</div>
+          </div>
+          <div class="bg-white/40 dark:bg-slate-800/40 rounded-2xl p-4 text-center border border-white/50 dark:border-slate-700/30 shadow-sm">
+            <div class="text-xl font-extrabold text-brand-600 dark:text-brand-400 tracking-tight" id="p-focus">0</div>
+            <div class="text-[9px] uppercase font-bold text-slate-400 mt-1">Focus Sessions</div>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Milestone Badges</h3>
+          <div id="badges-row" class="flex flex-wrap gap-2.5"></div>
+        </div>
+
+        <hr class="border-slate-100 dark:border-slate-800/80 mb-6">
+
+        <div class="mb-6">
+          <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Switch Avatar</h3>
+          <div class="grid grid-cols-6 gap-2" id="profile-avatar-row">
+            <button class="av-btn w-full h-10 rounded-xl text-lg bg-white/60 dark:bg-slate-800/40 border border-transparent transition-all flex items-center justify-center hover:scale-105" onclick="selectEditAv(this,'🌸')">🌸</button>
+            <button class="av-btn w-full h-10 rounded-xl text-lg bg-white/60 dark:bg-slate-800/40 border border-transparent transition-all flex items-center justify-center hover:scale-105" onclick="selectEditAv(this,'🌿')">🌿</button>
+            <button class="av-btn w-full h-10 rounded-xl text-lg bg-white/60 dark:bg-slate-800/40 border border-transparent transition-all flex items-center justify-center hover:scale-105" onclick="selectEditAv(this,'🌊')">🌊</button>
+            <button class="av-btn w-full h-10 rounded-xl text-lg bg-white/60 dark:bg-slate-800/40 border border-transparent transition-all flex items-center justify-center hover:scale-105" onclick="selectEditAv(this,'☀️')">☀️</button>
+            <button class="av-btn w-full h-10 rounded-xl text-lg bg-white/60 dark:bg-slate-800/40 border border-transparent transition-all flex items-center justify-center hover:scale-105" onclick="selectEditAv(this,'🌙')">🌙</button>
+            <button class="av-btn w-full h-10 rounded-xl text-lg bg-white/60 dark:bg-slate-800/40 border border-transparent transition-all flex items-center justify-center hover:scale-105" onclick="selectEditAv(this,'🦋')">🦋</button>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Update Identity</h3>
+          <div class="flex gap-2">
+            <input id="edit-name" type="text" placeholder="Update name..." maxlength="20" class="flex-1 bg-white/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <button onclick="updateProfile()" class="bg-slate-900 dark:bg-brand-600 text-white font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:bg-slate-800 text-xs transition-all">Save Changes</button>
+          </div>
+        </div>
+
+        <button onclick="resetAll()" class="w-full bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-semibold py-3.5 rounded-xl border border-rose-200/40 dark:border-rose-900/20 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors text-xs">
+          Completely Reset Silent Space
+        </button>
+      </div>
+    </div>
+
+  </div> <!-- End Wrapper -->
+
+  <!-- PREMIUM FLOATING DOCK -->
+  <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-t border-slate-200/40 dark:border-white/5 z-50 rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(15,23,42,0.05)]" style="display:none;">
+    <div class="flex justify-between items-center px-4 py-3 pb-safe gap-1">
+      <button class="nav-btn active flex flex-col items-center gap-1.5 p-1 w-12 sm:w-14" onclick="showTab('checkin',this)">
+        <i data-lucide="edit-3" class="w-4.5 h-4.5"></i>
+        <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider">Log</span>
+        <div class="nav-dot mt-0.5"></div>
+      </button>
+      <button class="nav-btn flex flex-col items-center gap-1.5 p-1 w-12 sm:w-14" onclick="showTab('breathe',this)">
+        <i data-lucide="wind" class="w-4.5 h-4.5"></i>
+        <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider">Breathe</span>
+        <div class="nav-dot mt-0.5"></div>
+      </button>
+      <button class="nav-btn flex flex-col items-center gap-1.5 p-1 w-12 sm:w-14 text-teal-600 dark:text-teal-400" onclick="showTab('lumi',this)">
+        <i data-lucide="sparkles" class="w-4.5 h-4.5"></i>
+        <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider">Lumi</span>
+        <div class="nav-dot mt-0.5"></div>
+      </button>
+      <button class="nav-btn flex flex-col items-center gap-1.5 p-1 w-12 sm:w-14" onclick="showTab('focus',this)">
+        <i data-lucide="target" class="w-4.5 h-4.5"></i>
+        <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider">Focus</span>
+        <div class="nav-dot mt-0.5"></div>
+      </button>
+      <button class="nav-btn flex flex-col items-center gap-1.5 p-1 w-12 sm:w-14" onclick="showTab('report',this)">
+        <i data-lucide="pie-chart" class="w-4.5 h-4.5"></i>
+        <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider">Stats</span>
+        <div class="nav-dot mt-0.5"></div>
+      </button>
+      <button class="nav-btn flex flex-col items-center gap-1.5 p-1 w-12 sm:w-14" onclick="showTab('calendar',this)">
+        <i data-lucide="calendar" class="w-4.5 h-4.5"></i>
+        <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider">Dates</span>
+        <div class="nav-dot mt-0.5"></div>
+      </button>
+      <button id="nav-profile" class="hidden" onclick="showTab('profile',this)"></button>
+    </div>
+  </nav>
+
+</div>
+
+<!-- DETAILED DIALOG / MODAL (Smooth scale transition) -->
+<div class="fixed inset-0 bg-slate-900/20 dark:bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300" id="cal-modal" onclick="closeCalModal(event)">
+  <div class="glass-panel w-full max-w-sm rounded-[2rem] p-6 shadow-2xl transform scale-95 transition-transform duration-300 border border-white/60 dark:border-white/5" id="cal-modal-card">
+    <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-800 pb-3">
+      <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest" id="modal-date-title">Date Information</h3>
+      <button onclick="closeCalModal()" class="w-8 h-8 rounded-full bg-slate-100/80 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-slate-600 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div id="modal-body" class="max-h-[50vh] overflow-y-auto pr-1"></div>
+  </div>
+</div>
+
+<script>
+// Initialize Icons
+lucide.createIcons();
+
+// Date stamp in header
+document.getElementById('current-date-display').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+// ─── Real Verified Quotes ──────────────────────────────────
+const quotes = [
+  { text: "You don't have to be positive all the time. It's okay to feel what you feel.", author: "Lori Deschene" },
+  { text: "Almost everything will work again if you unplug it for a few minutes, including you.", author: "Anne Lamott" },
+  { text: "You are allowed to be both a masterpiece and a work in progress.", author: "Sophia Bush" },
+  { text: "Nothing diminishes anxiety faster than action.", author: "Walter Anderson" },
+  { text: "Self-care is how you take your power back.", author: "Lalah Delia" },
+  { text: "Be gentle with yourself.", author: "Max Ehrmann" },
+  { text: "The greatest weapon against stress is our ability to choose one thought over another.", author: "William James" },
+  { text: "Tension is who you think you should be. Relaxation is who you are.", author: "Chinese Proverb" },
+  { text: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
+  { text: "Act the way that you want to feel.", author: "Gretchen Rubin" },
+  { text: "Smile, breathe, and go slowly.", author: "Thich Nhat Hanh" },
+  { text: "You can't stop the waves, but you can learn to surf.", author: "Jon Kabat-Zinn" }
+];
+
+const moodInfo = {
+  happy:       { emoji: '😊', label: 'Happy',       cat: 'positive' },
+  excited:     { emoji: '🤩', label: 'Excited',     cat: 'positive' },
+  calm:        { emoji: '😌', label: 'Calm',         cat: 'positive' },
+  grateful:    { emoji: '🙏', label: 'Grateful',    cat: 'positive' },
+  neutral:     { emoji: '😐', label: 'Neutral',     cat: 'neutral'  },
+  depressed:   { emoji: '😔', label: 'Depressed',   cat: 'difficult'},
+  anxious:     { emoji: '😰', label: 'Anxious',     cat: 'difficult'},
+  stressed:    { emoji: '😞', label: 'Stressed',    cat: 'difficult'},
+  overwhelmed: { emoji: '🤯', label: 'Overwhelmed', cat: 'difficult'},
+  frustrated:  { emoji: '😤', label: 'Frustrated',  cat: 'difficult'},
+  lonely:      { emoji: '🥺', label: 'Lonely',      cat: 'difficult'},
+  tired:       { emoji: '😴', label: 'Tired',       cat: 'tired'   }
+};
+
+const POSITIVE_MOODS  = ['happy','excited','calm','grateful'];
+const DIFFICULT_MOODS = ['depressed','anxious','stressed','overwhelmed','frustrated','lonely'];
+
+const suggestions = {
+  depressed: ['Sit by a window and absorb light for 5 minutes.','Write down one things you managed to complete today.','Listen to a highly soothing acoustic track.','Drink warm tea/water slowly.'],
+  stressed: ['Breathe with long exhales — in for 4, out for 6.','Step away from social feeds completely for 1 hour.','Stretch your neck & shoulders.','Wash your face or wrists in cool water.'],
+  anxious: ['Perform 5-4-3-2-1 naming grounding technique.','Press feet firmly against the floor.','Focus completely on your body\'s contact with the chair.'],
+  overwhelmed: ['Pick exactly one very tiny thing to solve.','Clear your immediate screen clutter or desk.','Close your eyes for 60 seconds.'],
+  frustrated: ['Exhale deeply, emptying all air in your lungs.','Do physical stretches or step outdoors for a minute.'],
+  lonely: ['Pen down a journal note for yourself.','Watch a deeply comforting classic film or animation.'],
+  tired: ['Close your screen right now and rest.','Sip a fresh glass of water.','Unclench your jaw and shoulders.'],
+  _default: ['Take 3 intentional deep breaths.','Refresh yourself with a tall glass of clean water.','Look at the horizon out of the window.']
+};
+
+const patterns = {
+  '478':   { phases: ['Inhale','Hold','Exhale'],        times: [4,7,8],   tip: '4-7-8 breathing calms the nervous system. Great for anxiety or before sleep.' },
+  'box':   { phases: ['Inhale','Hold','Exhale','Hold'], times: [4,4,4,4], tip: 'Box breathing: equal counts all around. Used to stay calm under pressure.' },
+  'simple':{ phases: ['Inhale','Exhale'],               times: [4,4],     tip: "Simple and easy. Perfect if you're new to breathing exercises." }
+};
+
+const BADGES = [
+  { id:'first',    label:'First log',        emoji:'🌱', desc:'Logged your first mood',          check: (e,f) => e.length >= 1 },
+  { id:'streak3',  label:'3-day streak',     emoji:'🔥', desc:'3 days in a row',                 check: (e,f) => calcStreak() >= 3 },
+  { id:'streak7',  label:'Week warrior',     emoji:'🏆', desc:'7-day streak',                    check: (e,f) => calcStreak() >= 7 },
+  { id:'logs10',   label:'Mindful regular',  emoji:'⭐', desc:'10 check-ins logged',             check: (e,f) => e.length >= 10 },
+  { id:'focus5',   label:'Focus champ',      emoji:'🎯', desc:'5 completed focus sessions',      check: (e,f) => f.filter(s=>s.completed).length >= 5 },
+  { id:'positive', label:'Glow mindset',     emoji:'😊', desc:'Logged 5 positive moods',         check: (e,f) => e.filter(x=>POSITIVE_MOODS.includes(x.mood)).length >= 5 },
+];
+
+// ─── App Global State ─────────────────────────────────────────
+let entries       = JSON.parse(localStorage.getItem('ssms7_e')     || '[]');
+let profile       = JSON.parse(localStorage.getItem('ssms7_p')     || 'null');
+let focusSessions = JSON.parse(localStorage.getItem('ssms7_focus') || '[]');
+let lumiMessages  = JSON.parse(localStorage.getItem('ssms7_lumi')  || '[]');
+let darkMode      = localStorage.getItem('ssms7_dark') === '1';
+
+let currentMood      = null;
+let moodChart        = null;
+let calYear          = new Date().getFullYear();
+let calMonth         = new Date().getMonth();
+let selectedAv       = '🌸';
+let editAv           = null;
+let currentPattern   = '478';
+let breatheRunning   = false;
+let breatheTimer     = null;
+let breathePhaseIdx  = 0;
+let breatheCycles    = 0;
+let focusTimer       = null;
+let focusRunning     = false;
+let focusSeconds     = 0;
+let focusTopic       = '';
+
+// ─── Init entry ───────────────────────────────────────────────
+function init() {
+  applyTheme();
+  if (profile) {
+    showMainApp();
+  } else {
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display     = 'none';
+    document.getElementById('bottom-nav').style.display   = 'none';
+  }
+}
+
+// ─── Theme Toggles ───────────────────────────────────────────
+function applyTheme() {
+  document.documentElement.classList.toggle('dark', darkMode);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.innerHTML = darkMode ? '<i data-lucide="sun" class="w-4.5 h-4.5 text-amber-400"></i>' : '<i data-lucide="moon" class="w-4.5 h-4.5 text-slate-500"></i>';
+    lucide.createIcons();
+  }
+}
+
+function toggleTheme() {
+  darkMode = !darkMode;
+  localStorage.setItem('ssms7_dark', darkMode ? '1' : '0');
+  applyTheme();
+}
+
+// ─── Onboarding setups ────────────────────────────────────────
+function selectAv(el, av) {
+  document.querySelectorAll('#avatar-row .av-btn').forEach(b => {
+    b.classList.remove('border-brand-500');
+    b.classList.add('border-transparent');
+  });
+  el.classList.add('border-brand-500');
+  el.classList.remove('border-transparent');
+  selectedAv = av;
+}
+
+function selectEditAv(el, av) {
+  document.querySelectorAll('#profile-avatar-row .av-btn').forEach(b => {
+    b.classList.remove('border-brand-500', 'border-slate-300');
+    b.classList.add('border-transparent');
+  });
+  el.classList.add('border-brand-500');
+  el.classList.remove('border-transparent');
+  editAv = av;
+}
+
+function saveProfile() {
+  const name = document.getElementById('setup-name').value.trim() || 'Friend';
+  profile = { name, avatar: selectedAv, since: Date.now() };
+  localStorage.setItem('ssms7_p', JSON.stringify(profile));
+  showMainApp();
+}
+
+// ─── Main Display trigger ────────────────────────────────────
+function showMainApp() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('main-app').style.display     = 'block';
+  document.getElementById('bottom-nav').style.display   = 'block';
+  applyProfile();
+  updateStreaks();
+  initLumiChat();
+  
+  // Random Quote from real people
+  const idx = Math.floor(Math.random() * quotes.length);
+  document.getElementById('quote-text').textContent   = quotes[idx].text;
+  document.getElementById('quote-author').textContent = '— ' + quotes[idx].author;
+}
+
+function applyProfile() {
+  if (!profile) return;
+  const hr = new Date().getHours();
+  const greetingText = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('hero-greeting').textContent = greetingText + ', ' + profile.name;
+  document.getElementById('hero-avatar').textContent = profile.avatar;
+  document.getElementById('profile-avatar').textContent = profile.avatar;
+  document.getElementById('profile-name').textContent = profile.name;
+  
+  const sinceDate = new Date(profile.since);
+  document.getElementById('profile-since').textContent = 'Mindful Explorer since ' + sinceDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  
+  document.querySelectorAll('#profile-avatar-row .av-btn').forEach(b => {
+    const matched = b.textContent.trim() === profile.avatar;
+    b.classList.toggle('border-brand-500', matched);
+    b.classList.toggle('border-transparent', !matched);
+  });
+  editAv = profile.avatar;
+}
+
+function updateProfile() {
+  const name = document.getElementById('edit-name').value.trim();
+  if (name) profile.name = name;
+  if (editAv) profile.avatar = editAv;
+  localStorage.setItem('ssms7_p', JSON.stringify(profile));
+  applyProfile();
+  document.getElementById('edit-name').value = '';
+}
+
+function resetAll() {
+  if (confirm('Discard entire timeline and stats? This action cannot be undone.')) {
+    ['ssms7_e','ssms7_p','ssms7_focus','ssms7_lumi'].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  }
+}
+
+// ─── Daily streak metrics ────────────────────────────────────
+function updateStreaks() {
+  document.getElementById('total-num').textContent = entries.length;
+  const s = calcStreak();
+  document.getElementById('streak-num').textContent = s;
+  document.getElementById('p-total').textContent    = entries.length;
+  document.getElementById('p-streak').textContent   = s;
+  
+  const positiveCount = entries.filter(e => POSITIVE_MOODS.includes(e.mood)).length;
+  document.getElementById('p-happy').textContent = entries.length ? Math.round(positiveCount / entries.length * 100) + '%' : '0%';
+  
+  const doneFocus = focusSessions.filter(fs => fs.completed).length;
+  document.getElementById('p-focus').textContent = doneFocus;
+  renderBadges();
+}
+
+function calcStreak() {
+  if (!entries.length) return 0;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const sortedDates = [...new Set(entries.map(e => new Date(e.ts).toDateString()))]
+    .map(d => new Date(d)).sort((a,b) => b - a);
+  
+  let currentStreak = 0;
+  for (let i = 0; i < sortedDates.length; i++) {
+    const entryDate = new Date(sortedDates[i]); entryDate.setHours(0,0,0,0);
+    const expectedDate = new Date(today); expectedDate.setDate(today.getDate() - i);
+    if (entryDate.getTime() === expectedDate.getTime()) {
+      currentStreak++;
+    } else {
+      break;
+    }
+  }
+  return currentStreak;
+}
+
+// ─── Achievements Badges render ──────────────────────────────────
+function renderBadges() {
+  const container = document.getElementById('badges-row');
+  if (!container) return;
+  const activeBadges = BADGES.filter(b => b.check(entries, focusSessions));
+  if (!activeBadges.length) {
+    container.innerHTML = '<div class="text-xs text-slate-400 font-medium py-3">Accomplishments will reveal as you log.</div>';
+    return;
+  }
+  container.innerHTML = activeBadges.map(b =>
+    `<div class="flex items-center gap-2 px-3 py-2 bg-white/70 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm" title="${b.desc}">
+      <span class="text-lg">${b.emoji}</span>
+      <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${b.label}</span>
+    </div>`
+  ).join('');
+}
+
+// ─── Navigation Tabs System ──────────────────────────────────
+function showTab(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+  
+  document.getElementById('tab-' + id).classList.add('active');
+  if (el) {
+    el.classList.add('active');
+  } else {
+    if (id === 'profile') document.getElementById('nav-profile').classList.add('active');
+  }
+  
+  if (id === 'calendar') renderCalendar();
+  if (id === 'report')   renderReport();
+  if (id === 'profile')  { applyProfile(); updateStreaks(); }
+  if (id === 'focus')    renderFocusSessions();
+  if (id === 'checkin')  renderHistory();
+  if (id === 'lumi')     renderLumiMessages();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Routes direct to breath training tab from quick action buttons
+function goToBreathe() {
+  showTab('breathe', document.querySelectorAll('.nav-btn')[1]);
+}
+
+// ─── Mood Log ────────────────────────────────────────────────
+function selectMood(mood, el) {
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.remove('!border-brand-500', '!bg-brand-100', 'dark:!bg-brand-900/50', 'scale-105', 'shadow-glow-brand');
+    b.querySelector('span:last-child').classList.remove('!text-brand-700', 'dark:!text-brand-300');
+  });
+  el.classList.add('!border-brand-500', '!bg-brand-100', 'dark:!bg-brand-900/50', 'scale-105', 'shadow-glow-brand');
+  el.querySelector('span:last-child').classList.add('!text-brand-700', 'dark:!text-brand-300');
+  currentMood = mood;
+}
+
+function getBadgeClasses(cat) {
+  switch (cat) {
+    case 'positive': return 'badge-positive text-emerald-800 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-950/30';
+    case 'neutral':  return 'badge-neutral text-slate-800 bg-slate-100 dark:text-slate-300 dark:bg-slate-800/30';
+    case 'difficult':return 'badge-difficult text-rose-800 bg-rose-100 dark:text-rose-300 dark:bg-rose-950/30';
+    default:         return 'badge-tired text-amber-800 bg-amber-100 dark:text-amber-300 dark:bg-amber-950/30';
+  }
+}
+
+function logMood(silent = false) {
+  if (!currentMood) {
+    if(!silent) showFeedback('<div class="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/30 rounded-2xl text-amber-800 dark:text-amber-300 text-xs font-semibold text-center mb-4">Please select a mood option first.</div>');
+    return;
+  }
+  const note = document.getElementById('note').value.trim();
+  entries.push({ mood: currentMood, note, ts: Date.now(), hour: new Date().getHours() });
+  try { localStorage.setItem('ssms7_e', JSON.stringify(entries)); } catch(e) {}
+  updateStreaks();
+  renderHistory();
+
+  if(silent) return; // For Lumi API auto-logging
+
+  const isDifficult = DIFFICULT_MOODS.includes(currentMood);
+  const sc = entries.slice(-7).filter(e => DIFFICULT_MOODS.includes(e.mood)).length;
+  let html = '';
+
+  if (isDifficult && sc >= 3) {
+    html = buildFeedback('bg-rose-50 border-rose-200/40 text-rose-950 dark:bg-rose-950/10 dark:border-rose-900/20 dark:text-rose-200', "You've been holding complex weights recently 💙", "Take it easy. Gently inspect these suggestions:", 3, currentMood);
+  } else if (currentMood === 'tired' && entries.slice(-7).filter(e => e.mood === 'tired').length >= 2) {
+    html = buildFeedback('bg-amber-50 border-amber-200/30 text-amber-950 dark:bg-amber-950/10 dark:border-amber-900/20 dark:text-amber-200', 'Your fuel might be running low 🌙', 'Gently try these rest suggestions:', 2, 'tired');
+  } else if (isDifficult) {
+    html = buildFeedback('bg-slate-50 border-slate-200 dark:bg-slate-900/40 dark:border-slate-800 dark:text-slate-200', "Acknowledged. Here is a silent suggestion:", '', 1, currentMood);
+  } else {
+    html = `<div class="p-4 bg-emerald-50/70 border border-emerald-200/30 dark:bg-emerald-950/10 dark:border-emerald-900/20 rounded-2xl mb-4">
+      <div class="font-bold text-emerald-800 dark:text-emerald-300 text-xs mb-1">Logged ✓</div>
+      <div class="text-[11px] text-emerald-700 dark:text-emerald-400">
+        ${POSITIVE_MOODS.includes(currentMood) ? 'Glad you are feeling ' + moodInfo[currentMood].label.toLowerCase() + '! ✨' : 'Thanks for tracking your focus space today 💜'}
+      </div>
+    </div>`;
+  }
+
+  if (isDifficult) {
+    html += `<button onclick="goToBreathe()" class="w-full py-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 text-xs font-semibold text-brand-600 dark:text-brand-400 shadow-sm hover:bg-white dark:hover:bg-slate-800 transition-all flex justify-center items-center gap-2 mt-2"><i data-lucide="wind" class="w-4 h-4"></i> Breathe with space right now →</button>`;
+  }
+
+  showFeedback(html);
+  lucide.createIcons();
+  document.getElementById('note').value = '';
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.remove('!border-brand-500', '!bg-brand-100', 'dark:!bg-brand-900/50', 'scale-105', 'shadow-glow-brand');
+    b.querySelector('span:last-child').classList.remove('!text-brand-700', 'dark:!text-brand-300');
+  });
+  currentMood = null;
+}
+
+function buildFeedback(cls, title, sub, n, mood) {
+  const pool = suggestions[mood] || suggestions._default;
+  const items = pickN(pool, n);
+  const list  = items.map((s, i) => `
+    <li class="flex items-start gap-3 py-2 border-b border-black/5 dark:border-white/5 last:border-0 text-xs leading-relaxed">
+      <div class="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0"></div>
+      <div class="flex-1">${s}
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/50 dark:bg-slate-900/60 border border-black/5 dark:border-white/5 mt-1.5 text-[10px] font-semibold cursor-pointer transition hover:bg-white active:scale-95 sugg-confirm" onclick="completeSugg(this)">
+          <input type="checkbox" class="accent-brand-500 w-3 h-3"> Mark Done
+        </div>
+      </div>
+    </li>`).join('');
+  return `<div class="p-4 rounded-2xl border ${cls} mb-4">
+    <div class="font-bold text-xs mb-1 uppercase tracking-wider">${title}</div>
+    ${sub ? `<div class="text-[11px] opacity-75 mb-3">${sub}</div>` : ''}
+    <ul class="mt-2 space-y-1">${list}</ul>
+  </div>`;
+}
+
+function completeSugg(el) {
+  const cb = el.querySelector('input');
+  if (!cb.checked) { 
+    cb.checked = true; 
+    el.classList.add('opacity-50', 'line-through'); 
+  }
+}
+
+function pickN(arr, n) { return [...arr].sort(() => Math.random() - 0.5).slice(0, n); }
+function showFeedback(html) { document.getElementById('feedback').innerHTML = html; }
+
+// ─── History listing ──────────────────────────────────────────
+function renderHistory() {
+  const listWrapper = document.getElementById('history-list');
+  if (!entries.length) { 
+    listWrapper.innerHTML = '<div class="py-8 text-center text-xs text-slate-400 font-medium">No records yet. Try your first log.</div>'; 
+    return; 
+  }
+  
+  listWrapper.innerHTML = [...entries].reverse().slice(0, 8).map(e => {
+    const details = moodInfo[e.mood] || { emoji: '💭', label: 'Logged', cat: 'neutral' };
+    return `<div class="flex items-start gap-3 py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
+      <div class="text-2xl pt-1">${details.emoji}</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 flex-wrap text-xs font-bold text-slate-850 dark:text-slate-200">
+          ${details.label} <span class="text-[8px] px-2 py-0.5 rounded-md font-bold uppercase tracking-widest ${getBadgeClasses(details.cat)}">${details.cat}</span>
+        </div>
+        ${e.note ? `<div class="text-xs text-slate-500 dark:text-slate-400 mt-1 italic leading-relaxed">"${e.note}"</div>` : ''}
+      </div>
+      <div class="text-[9px] font-bold text-slate-400 whitespace-nowrap mt-1">${timeAgo(e.ts)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Breathing Execution Engine ──────────────────────────────
+function setPattern(key, el) {
+  document.querySelectorAll('.pat-btn').forEach(b => {
+    b.classList.remove('sel', 'bg-white', 'dark:bg-slate-800', 'text-slate-800', 'dark:text-white', 'shadow-sm');
+    b.classList.add('text-slate-400');
+  });
+  el.classList.add('sel', 'bg-white', 'dark:bg-slate-800', 'text-slate-800', 'dark:text-white', 'shadow-sm');
+  el.classList.remove('text-slate-400');
+  currentPattern = key;
+  resetBreathe();
+  document.getElementById('breathe-tip').textContent = patterns[key].tip;
+}
+
+function toggleBreathe() { 
+  if (breatheRunning) {
+    pauseBreathe();
+  } else {
+    startBreathe();
+  }
+}
+
+function startBreathe() {
+  breatheRunning = true;
+  document.getElementById('start-btn').textContent = 'Pause Session';
+  runPhase();
+}
+
+function pauseBreathe() {
+  breatheRunning = false;
+  clearTimeout(breatheTimer);
+  document.getElementById('start-btn').textContent = 'Resume';
+}
+
+function resetBreathe() {
+  breatheRunning = false;
+  clearTimeout(breatheTimer);
+  breathePhaseIdx = 0;
+  breatheCycles   = 0;
+  
+  const coreCircle = document.getElementById('breathe-circle');
+  const midCircle = document.getElementById('breathe-circle-mid');
+  const outerCircle = document.getElementById('breathe-circle-outer');
+  
+  coreCircle.style.transition = 'none';
+  midCircle.style.transition = 'none';
+  outerCircle.style.transition = 'none';
+  
+  coreCircle.style.transform = 'scale(1)';
+  midCircle.style.transform = 'scale(1.1)';
+  outerCircle.style.transform = 'scale(1.25)';
+  
+  document.getElementById('breathe-label').innerHTML  = 'Tap<br>Start';
+  document.getElementById('breathe-phase').textContent   = '';
+  document.getElementById('breathe-counter').textContent = '';
+  document.getElementById('start-btn').textContent = 'Start Exercise';
+}
+
+function runPhase() {
+  if (!breatheRunning) return;
+  const p     = patterns[currentPattern];
+  const phase = p.phases[breathePhaseIdx];
+  const dur   = p.times[breathePhaseIdx];
+  
+  const coreCircle = document.getElementById('breathe-circle');
+  const midCircle = document.getElementById('breathe-circle-mid');
+  const outerCircle = document.getElementById('breathe-circle-outer');
+  const lbl   = document.getElementById('breathe-label');
+
+  document.getElementById('breathe-counter').textContent = 'Cycle ' + (breatheCycles + 1);
+
+  if (phase === 'Inhale') {
+    const tStyle = `transform ${dur}s cubic-bezier(0.4, 0, 0.2, 1)`;
+    coreCircle.style.transition = tStyle;
+    midCircle.style.transition = tStyle;
+    outerCircle.style.transition = tStyle;
+    
+    coreCircle.style.transform = 'scale(1.5)';
+    midCircle.style.transform = 'scale(1.75)';
+    outerCircle.style.transform = 'scale(2.1)';
+    lbl.textContent = 'Inhale';
+  } else if (phase === 'Exhale') {
+    const tStyle = `transform ${dur}s cubic-bezier(0.4, 0, 0.2, 1)`;
+    coreCircle.style.transition = tStyle;
+    midCircle.style.transition = tStyle;
+    outerCircle.style.transition = tStyle;
+    
+    coreCircle.style.transform = 'scale(0.85)';
+    midCircle.style.transform = 'scale(0.95)';
+    outerCircle.style.transform = 'scale(1.1)';
+    lbl.textContent = 'Exhale';
+  } else {
+    coreCircle.style.transition = 'none';
+    midCircle.style.transition = 'none';
+    outerCircle.style.transition = 'none';
+    lbl.textContent = 'Hold';
+  }
+
+  let rem = dur;
+  const tick = () => {
+    if (!breatheRunning) return;
+    document.getElementById('breathe-phase').textContent = phase + ' — ' + rem;
+    rem--;
+    if (rem > 0) {
+      breatheTimer = setTimeout(tick, 1000);
+    } else {
+      breathePhaseIdx++;
+      if (breathePhaseIdx >= p.phases.length) {
+        breathePhaseIdx = 0;
+        breatheCycles++;
+      }
+      breatheTimer = setTimeout(runPhase, 400);
+    }
+  };
+  tick();
+}
+
+// ─── Focus Workspace Timer ───────────────────────────────────
+function startFocus() {
+  const topic = document.getElementById('focus-topic').value.trim() || 'Zen Space';
+  const mins  = parseInt(document.getElementById('focus-duration').value);
+  focusTopic   = topic;
+  focusSeconds = mins * 60;
+  
+  document.getElementById('focus-timer-card').style.display = 'block';
+  document.getElementById('timer-topic-display').textContent = topic;
+  document.getElementById('focus-start-btn').closest('.glass-panel').style.display = 'none';
+  
+  updateTimerDisplay();
+  focusRunning = true;
+  focusTimer   = setInterval(tickFocus, 1000);
+}
+
+function tickFocus() {
+  if (!focusRunning) return;
+  focusSeconds--;
+  updateTimerDisplay();
+  if (focusSeconds <= 0) { 
+    clearInterval(focusTimer); 
+    completeFocus(); 
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(focusSeconds / 60);
+  const s = focusSeconds % 60;
+  document.getElementById('timer-display').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function toggleFocus() {
+  focusRunning = !focusRunning;
+  document.getElementById('timer-pause-btn').textContent = focusRunning ? 'Pause' : 'Resume';
+}
+
+function stopFocus() {
+  clearInterval(focusTimer);
+  const elapsed = parseInt(document.getElementById('focus-duration').value) * 60 - focusSeconds;
+  if (elapsed > 60) saveFocusSession(Math.floor(elapsed / 60), false);
+  document.getElementById('focus-timer-card').style.display = 'none';
+  document.getElementById('focus-start-btn').closest('.glass-panel').style.display = 'block';
+  focusRunning = false;
+  renderFocusSessions();
+}
+
+function completeFocus() {
+  clearInterval(focusTimer);
+  const mins = parseInt(document.getElementById('focus-duration').value);
+  saveFocusSession(mins, true);
+  document.getElementById('focus-timer-card').style.display = 'none';
+  document.getElementById('focus-start-btn').closest('.glass-panel').style.display = 'block';
+  renderFocusSessions();
+  updateStreaks();
+}
+
+function saveFocusSession(mins, completed) {
+  const today = new Date().toDateString();
+  focusSessions.push({ topic: focusTopic, mins, completed, ts: Date.now(), date: today });
+  try { localStorage.setItem('ssms7_focus', JSON.stringify(focusSessions)); } catch(e) {}
+}
+
+function renderFocusSessions() {
+  const today = new Date().toDateString();
+  const todaysSessions = focusSessions.filter(s => s.date === today);
+  const wrapper = document.getElementById('focus-sessions');
+  
+  wrapper.innerHTML = todaysSessions.length
+    ? todaysSessions.map(s => `
+        <div class="flex items-center gap-3 py-2.5 border-b border-slate-100 dark:border-slate-800 last:border-0 text-xs">
+          <span class="text-base">${s.completed ? '✅' : '⏹️'}</span>
+          <span class="flex-1 font-bold text-slate-700 dark:text-slate-300">${s.topic}</span>
+          <span class="text-[10px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg">${s.mins} min</span>
+        </div>`).join('')
+    : '<div class="py-6 text-center text-xs text-slate-400 font-medium">No sessions logged today.</div>';
+  
+  const goal = parseInt(document.getElementById('focus-goal').value);
+  const done = todaysSessions.filter(s => s.completed).length;
+  document.getElementById('focus-goal-progress').innerHTML = done >= goal ? '<i data-lucide="check" class="w-3 h-3 inline"></i> Target met' : `${done}/${goal} completed`;
+  lucide.createIcons();
+}
+
+// ─── Lumi AI Companion Space Logic ─────────────────────────────
+function initLumiChat() {
+  if (lumiMessages.length === 0) {
+    const compName = profile?.name || 'Friend';
+    lumiMessages.push({
+      sender: 'lumi',
+      text: `Hi **${compName}**, I am **Lumi**, your personal AI mindfulness guide here in Silent Space. 🌸\n\nI am here to support you whenever you are holding anxieties, navigating a tough day, or wanting inspiration. You can share your feelings directly with me, and I'll log them for you. How can I lighten your weight today?`,
+      ts: Date.now()
+    });
+    localStorage.setItem('ssms7_lumi', JSON.stringify(lumiMessages));
+  }
+  renderLumiMessages();
+}
+
+function renderLumiMessages() {
+  const container = document.getElementById('lumi-chat-box');
+  if (!container) return;
+  
+  container.innerHTML = lumiMessages.map(m => {
+    const isLumi = m.sender === 'lumi';
+    const alignClass = isLumi ? 'justify-start' : 'justify-end';
+    const bgClass = isLumi 
+      ? 'bg-slate-100/80 dark:bg-slate-900/40 text-slate-850 dark:text-slate-100 border border-slate-200/40 dark:border-slate-800 rounded-bl-sm' 
+      : 'bg-brand-500/15 dark:bg-brand-500/10 text-brand-900 dark:text-brand-300 border border-brand-500/25 rounded-br-sm';
+    
+    const parsedText = parseMiniMarkdown(m.text);
+    
+    return `<div class="flex w-full ${alignClass}">
+      <div class="max-w-[85%] px-4 py-3 rounded-2xl shadow-sm text-xs leading-relaxed ${bgClass}">
+        <div class="flex items-center gap-1.5 mb-1 text-[10px] uppercase tracking-wider font-extrabold text-slate-450 dark:text-slate-500">
+          ${isLumi ? '✨ Lumi' : '👤 You'}
+        </div>
+        <div class="whitespace-pre-line font-medium">${parsedText}</div>
+      </div>
+    </div>`;
+  }).join('');
+  
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+}
+
+function parseMiniMarkdown(t) {
+  return t.replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-brand-600 dark:text-brand-400">$1</strong>');
+}
+
+function handleLumiKey(event) {
+  if (event.key === 'Enter') {
+    triggerLumiMessage();
+  }
+}
+
+function sendQuickPrompt(promptText) {
+  triggerLumiMessage(promptText);
+}
+
+function getLumiContext() {
+  if (!entries.length) {
+    return "- No mood entries have been logged yet. Gently encourage them to try their first check-in.";
+  }
+  const lastEntry = entries[entries.length - 1];
+  const lastMoodLabel = moodInfo[lastEntry.mood]?.label || lastEntry.mood;
+  const lastMoodEmoji = moodInfo[lastEntry.mood]?.emoji || '💭';
+  const lastNote = lastEntry.note ? lastEntry.note : "None";
+  const streak = calcStreak();
+  
+  const now = Date.now();
+  const lastWeek = entries.filter(e => now - e.ts < 7 * 86400000);
+  const counts = { positive: 0, neutral: 0, difficult: 0, tired: 0 };
+  lastWeek.forEach(e => {
+    const cat = moodInfo[e.mood]?.cat || 'neutral';
+    counts[cat] = (counts[cat] || 0) + 1;
+  });
+
+  const todayStr = new Date().toDateString();
+  const focusToday = focusSessions.filter(s => s.date === todayStr && s.completed);
+  const totalFocusMins = focusToday.reduce((acc, curr) => acc + curr.mins, 0);
+
+  return `- Last Feeling Logged: ${lastMoodLabel} ${lastMoodEmoji} (Logged with comment: "${lastNote}")
+- Total Mood Records: ${entries.length} checks in total.
+- Weekly Emotion Distribution: ${counts.positive} Positive, ${counts.neutral} Neutral, ${counts.difficult} Difficult, ${counts.tired} Tired.
+- Mindful Day Streak: ${streak} days active in a row.
+- Focus Accomplished Today: ${focusToday.length} sessions completed (${totalFocusMins} minutes focus).`;
+}
+
+async function triggerLumiMessage(customText = null) {
+  const inputEl = document.getElementById('lumi-user-input');
+  const text = (customText || inputEl.value).trim();
+  if (!text) return;
+  
+  if (!customText) {
+    inputEl.value = '';
+  }
+  
+  // Add User Message
+  lumiMessages.push({ sender: 'user', text: text, ts: Date.now() });
+  localStorage.setItem('ssms7_lumi', JSON.stringify(lumiMessages));
+  renderLumiMessages();
+  
+  // Active Typing Loader
+  const typingEl = document.getElementById('lumi-typing');
+  typingEl.classList.remove('hidden');
+  typingEl.classList.add('flex');
+  
+  // Call Gemini Model
+  let responseText = await sendMessageToLumi(text);
+  
+  // Process secret log tags generated by AI
+  const moodMatch = responseText.match(/\[LOG_MOOD:\s*([a-z]+)\]/i);
+  if (moodMatch) {
+      const detectedMood = moodMatch[1].toLowerCase();
+      if (moodInfo[detectedMood]) {
+          currentMood = detectedMood;
+          document.getElementById('note').value = text;
+          logMood(true); // Silent log
+          
+          responseText = responseText.replace(/\[LOG_MOOD:\s*[a-z]+\]/i, '').trim();
+          responseText += `\n\n*(Lumi logged your feeling as ${moodInfo[detectedMood].label} ${moodInfo[detectedMood].emoji} for you)*`;
+      } else {
+          responseText = responseText.replace(/\[LOG_MOOD:\s*[a-z]+\]/i, '').trim();
+      }
+  }
+
+  typingEl.classList.add('hidden');
+  typingEl.classList.remove('flex');
+  
+  // Add Lumi Response
+  lumiMessages.push({ sender: 'lumi', text: responseText, ts: Date.now() });
+  localStorage.setItem('ssms7_lumi', JSON.stringify(lumiMessages));
+  renderLumiMessages();
+}
+
+async function sendMessageToLumi(userText) {
+  const apiKey = ""; // provided at runtime environment
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+  
+  const recentContext = getLumiContext();
+  const systemPrompt = `You are LUMI, a warm, extremely compassionate and supportive AI mindfulness companion for stress management.
+  The user is named ${profile?.name || 'Friend'}.
+  
+  CRITICAL REAL-TIME USER DATA FOR ANALYSIS:
+  ${recentContext}
+  
+  INSTRUCTIONS FOR YOUR RESPONSE:
+  1. Analyze the provided stats and previous user messages to ensure accurate, context-aware answers. Never repeat the same generic script.
+  2. Keep your messages SHORT, SWEET, AND CONCISE (maximum 2-3 sentences where possible). Avoid large blocks of text.
+  3. Be highly informative yet soothing, like a wise human friend.
+  4. Use markdown formatting (**bolding**) to emphasize key concepts.
+  5. CRITICAL: MOOD LOGGING
+     Analyze the user's message. If they express a clear emotion (e.g., 'I feel sad', 'I am so stressed', 'feeling great'), you MUST log it.
+     To log a feeling, append exactly this string at the VERY END of your response text:
+     [LOG_MOOD: mood_name]
+     Where 'mood_name' MUST be exactly one of these: happy, excited, calm, grateful, neutral, depressed, anxious, stressed, overwhelmed, frustrated, lonely, tired.
+     Only include this hidden tag if the user directly states a clear mood.`;
+  
+  // Package Chat History for Context (Merge sequential messages of the same role to prevent API error)
+  let apiHistory = [];
+  let lastRole = null;
+  
+  for (let m of lumiMessages) {
+      if (m.sender === 'lumi' && apiHistory.length === 0) continue; // Skip initial greeting to enforce user starting sequence
+      
+      let role = m.sender === 'lumi' ? 'model' : 'user';
+      if (role === lastRole) {
+          apiHistory[apiHistory.length - 1].parts[0].text += "\n\n" + m.text;
+      } else {
+          apiHistory.push({ role: role, parts: [{ text: m.text }] });
+          lastRole = role;
+      }
+  }
+
+  const maxRetries = 5;
+  const delays = [1000, 2000, 4000, 8000, 16000];
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: apiHistory,
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        })
+      });
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const result = await response.json();
+      const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return text;
+      throw new Error("Empty response from API");
+    } catch (error) {
+      if (attempt === maxRetries - 1) {
+        return getLumiFallbackResponse(userText);
+      }
+      await new Promise(resolve => setTimeout(resolve, delays[attempt]));
+    }
+  }
+}
+
+function getLumiFallbackResponse(text) {
+  const query = text.toLowerCase();
+  const name = profile?.name || 'Friend';
+  const lastEntry = entries[entries.length - 1];
+  const lastMood = lastEntry ? lastEntry.mood : null;
+  const moodLabel = lastMood ? (moodInfo[lastMood]?.label || lastMood) : null;
+  const moodEmoji = lastMood ? (moodInfo[lastMood]?.emoji || '💭') : '';
+  const streak = calcStreak();
+
+  let intro = "";
+  if (moodLabel) {
+    intro = `Since you logged feeling **${moodLabel}** ${moodEmoji}, `;
+  }
+  if (streak > 1 && intro) {
+    intro += `and keeping up a solid **${streak}-day streak**, `;
+  }
+
+  if (query.includes('anxious') || query.includes('panic') || query.includes('scared') || query.includes('worry')) {
+    return `${intro}let's take a deep breath together. Try our **Breathe tab** (4-7-8 mode) to settle your nervous system immediately. You are safe here. [LOG_MOOD: anxious]`;
+  }
+  if (query.includes('sad') || query.includes('depressed') || query.includes('lonely') || query.includes('hurt')) {
+    return `${intro}I'm here with you in this heavy moment. Be incredibly gentle with yourself. Can you do one tiny, loving thing for yourself today? [LOG_MOOD: depressed]`;
+  }
+  if (query.includes('stressed') || query.includes('overwhelmed') || query.includes('busy')) {
+    return `${intro}it sounds like your plate is overflowing. Focus on just **one small thing**. Try a brief Pomodoro session under our **Focus** tab to ground your attention. [LOG_MOOD: stressed]`;
+  }
+  if (query.includes('happy') || query.includes('excited') || query.includes('great')) {
+    return `That is wonderful to hear, **${name}**! Take a moment to truly soak in this good energy. [LOG_MOOD: happy]`;
+  }
+  if (query.includes('progress') || query.includes('stats') || query.includes('analyze')) {
+    const focusToday = focusSessions.filter(s => s.completed).length;
+    return `Your mindful summary is looking strong, **${name}**! You have **${entries.length} total logs**, a active **${streak}-day streak**, and **${focusToday} focus sessions** under your belt. Keep going!`;
+  }
+  
+  if (moodLabel && (DIFFICULT_MOODS.includes(lastMood) || lastMood === 'tired')) {
+    return `${intro}I want to remind you that your limits represent security, not failure. Give yourself permission to do less today. I am right here.`;
+  }
+  
+  return `Hi **${name}**! ${intro || 'I\'m here as your AI companion. '}Tell me what's on your mind, or let me know if you want a quick stress-relief challenge!`;
+}
+
+function clearLumiChat() {
+  if (confirm("Clear your conversation history with Lumi?")) {
+    lumiMessages = [];
+    localStorage.removeItem('ssms7_lumi');
+    initLumiChat();
+  }
+}
+
+// ─── Analytics Report Panel ──────────────────────────────────
+function renderReport() {
+  const now  = Date.now();
+  const week = entries.filter(e => now - e.ts < 7 * 86400000);
+
+  const cats = { positive:0, neutral:0, difficult:0, tired:0 };
+  week.forEach(e => {
+    const cat = moodInfo[e.mood]?.cat || 'neutral';
+    cats[cat] = (cats[cat]||0) + 1;
+  });
+  const total = week.length;
+
+  document.getElementById('r-total').textContent  = total;
+  document.getElementById('r-stress').textContent = (cats.difficult||0) + (cats.tired||0);
+  document.getElementById('r-happy').textContent  = cats.positive||0;
+
+  const ins = document.getElementById('insight');
+  if (!total) {
+    ins.textContent = 'Log a few days to generate space summaries.';
+  } else if ((cats.difficult||0) >= 4) {
+    ins.textContent = "You've been holding complex weights lately. Unclench, pause, and remember your limits represent security, not weakness 💙";
+  } else if ((cats.tired||0) >= 3) {
+    ins.textContent = "Your timeline is highlighting frequent fatigue logs. Protect your rest cycles tonight 🌙";
+  } else if ((cats.positive||0) >= (cats.difficult||0) + (cats.tired||0)) {
+    ins.textContent = "Your silent timeline reflects balanced positive space this week. Excellent! 🌟";
+  } else {
+    ins.textContent = "Your logs show mixed feelings. This is fully natural. Silent Space remains with you 💜";
+  }
+
+  if (moodChart) { moodChart.destroy(); moodChart = null; }
+  const colors = { positive:'#14b8a6', neutral:'#64748b', difficult:'#f43f5e', tired:'#f59e0b' };
+  const keys   = ['positive','neutral','difficult','tired'];
+  const labels = ['Positive','Neutral','Difficult','Tired'];
+
+  if (total > 0) {
+    moodChart = new Chart(document.getElementById('moodChart'), {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{ data: keys.map(k => cats[k]||0), backgroundColor: keys.map(k => colors[k]), borderWidth: 0 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '76%',
+        plugins: { legend: { display:false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } } }
+      }
+    });
+    
+    document.getElementById('chart-legend').innerHTML = keys
+      .filter(k => (cats[k]||0) > 0)
+      .map((k,i) => `<div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full" style="background:${colors[k]}"></div><span>${labels[keys.indexOf(k)]} ${cats[k]||0}</span></div>`)
+      .join('');
+  }
+
+  renderHeatmap();
+}
+
+function renderHeatmap() {
+  const el = document.getElementById('heatmap-wrap');
+  if (!el) return;
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
+    days.push(d);
+  }
+  const colorMap = { positive:'#10b981', neutral:'#64748b', difficult:'#f43f5e', tired:'#f59e0b' };
+  el.innerHTML = '<div class="flex items-end gap-2 h-20 pb-5">' + days.map(d => {
+    const dayEntries = entries.filter(e => {
+      const ed = new Date(e.ts); ed.setHours(0,0,0,0);
+      return ed.getTime() === d.getTime();
+    });
+    const label = d.toLocaleDateString('en-US', { weekday:'short' });
+    if (!dayEntries.length) {
+      return `<div class="flex-1 flex flex-col items-center justify-end h-full gap-1.5"><div class="w-full min-h-[4px] rounded-full bg-slate-200 dark:bg-slate-800" style="height:10%"></div><div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">${label}</div></div>`;
+    }
+    const cats = dayEntries.map(e => moodInfo[e.mood]?.cat || 'neutral');
+    const order = ['difficult','tired','neutral','positive'];
+    const dom = order.find(c => cats.includes(c)) || 'neutral';
+    const height = Math.min(100, dayEntries.length * 20 + 20);
+    return `<div class="flex-1 flex flex-col items-center justify-end h-full gap-1.5">
+      <div class="w-full min-h-[4px] rounded-full transition-all duration-500" style="background:${colorMap[dom]}; height:${height}%; opacity:0.9;"></div>
+      <div class="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase">${label}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+// ─── Calendar Panel System ───────────────────────────────────
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = new Date(calYear, calMonth).toLocaleDateString('en-US', { month:'long', year:'numeric' });
+
+  const today       = new Date(); today.setHours(0,0,0,0);
+  const firstDay    = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const dayMap      = {};
+
+  entries.forEach(e => {
+    const d = new Date(e.ts);
+    if (d.getFullYear() === calYear && d.getMonth() === calMonth) {
+      const k = d.getDate();
+      if (!dayMap[k]) dayMap[k] = [];
+      dayMap[k].push(e);
+    }
+  });
+
+  const pr = { difficult:4, tired:3, neutral:2, positive:1 };
+  const dom = entries => {
+    const cats = entries.map(e => moodInfo[e.mood]?.cat || 'neutral');
+    return cats.sort((a,b) => (pr[b]||0) - (pr[a]||0))[0];
+  };
+
+  const catClass = { positive:'cd-happy', neutral:'cd-neutral', difficult:'cd-stressed', tired:'cd-tired' };
+
+  let cells = '';
+  for (let i = 0; i < firstDay; i++) cells += '<div class="cal-day cd-empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date    = new Date(calYear, calMonth, d); date.setHours(0,0,0,0);
+    const isToday  = date.getTime() === today.getTime();
+    const isFuture = date > today;
+    if (isFuture) {
+      cells += `<div class="cal-day cd-empty"></div>`;
+    } else if (dayMap[d]) {
+      const domCat = dom(dayMap[d]);
+      const cls = catClass[domCat] || 'cd-none';
+      const count = dayMap[d].length;
+      cells += `<div class="cal-day ${cls}${isToday ? ' cd-today' : ''} rounded-xl flex flex-col items-center justify-center text-xs font-bold cursor-pointer relative" 
+        onclick="openCalDay(${calYear},${calMonth},${d})">
+        ${d}
+        ${count > 1 ? `<span class="absolute top-1 right-1 text-[8px] bg-white/90 dark:bg-black/50 text-slate-800 dark:text-white rounded-full w-3.5 h-3.5 flex items-center justify-center">${count}</span>` : ''}
+      </div>`;
+    } else {
+      cells += `<div class="cal-day cd-none${isToday ? ' cd-today' : ''} rounded-xl flex items-center justify-center text-xs font-bold">${d}</div>`;
+    }
+  }
+  document.getElementById('cal-grid').innerHTML = cells;
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+// ─── Modal view daily specs ──────────────────────────────
+function openCalDay(y, m, d) {
+  const date = new Date(y, m, d);
+  const label = date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  document.getElementById('modal-date-title').textContent = label;
+
+  const dayEntries = entries.filter(e => {
+    const ed = new Date(e.ts);
+    return ed.getFullYear()===y && ed.getMonth()===m && ed.getDate()===d;
+  }).sort((a,b) => a.ts - b.ts);
+
+  const body = document.getElementById('modal-body');
+  if (!dayEntries.length) {
+    body.innerHTML = '<div class="py-6 text-center text-xs text-slate-400 font-medium">No records for today.</div>';
+  } else {
+    body.innerHTML = dayEntries.map(e => {
+      const mi = moodInfo[e.mood] || { emoji: '💭', label: 'Logged', cat: 'neutral' };
+      const time = new Date(e.ts).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+      return `<div class="py-3.5 border-b border-slate-100 dark:border-slate-850 last:border-0">
+        <div class="flex items-center gap-3 mb-1">
+          <span class="text-2xl">${mi.emoji}</span>
+          <div>
+            <div class="text-xs font-bold text-slate-850 dark:text-slate-100">${mi.label}</div>
+            <div class="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">${time}</div>
+          </div>
+        </div>
+        ${e.note ? `<div class="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl mt-2 italic leading-relaxed">"${e.note}"</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  const modal = document.getElementById('cal-modal');
+  modal.classList.remove('pointer-events-none', 'opacity-0');
+  modal.classList.add('opacity-100');
+  document.getElementById('cal-modal-card').classList.remove('scale-95');
+}
+
+function closeCalModal(e) {
+  if (!e || e.target === document.getElementById('cal-modal') || e.type !== 'click' || !e.target.closest('#cal-modal-card')) {
+    const modal = document.getElementById('cal-modal');
+    modal.classList.add('pointer-events-none', 'opacity-0');
+    modal.classList.remove('opacity-100');
+    document.getElementById('cal-modal-card').classList.add('scale-95');
+  }
+}
+
+// ─── Safe Time Stamp calculations ──────────────────────────────
+function timeAgo(ts) {
+  const m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+
+// ─── Initialize Application ──────────────────────────────────
+init();
+
+// ─── Background Star Ambient Canvas Loop ─────────────────────
+(function() {
+  function initMoodStars() {
+    const canvas = document.getElementById('mood-stars');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+      const card = canvas.parentElement;
+      canvas.width  = card.offsetWidth;
+      canvas.height = card.offsetHeight;
+    }
+
+    function buildStars() {
+      stars = [];
+      const count = Math.floor((canvas.width * canvas.height) / 1600);
+      for (let i = 0; i < count; i++) {
+        stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.5 + 0.5, base: Math.random() * 0.4 + 0.1, speed: Math.random() * 0.02 + 0.005, phase: Math.random() * Math.PI * 2 });
+      }
+    }
+
+    let frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
+      stars.forEach(s => {
+        const alpha = s.base + Math.sin(frame * s.speed + s.phase) * 0.15;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(20, 184, 166, ${Math.max(0, Math.min(1, alpha))})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    resize(); buildStars(); draw();
+    window.addEventListener('resize', () => { resize(); buildStars(); });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initMoodStars);
+  else initMoodStars();
+})();
+
+(function() {
+  const canvas = document.getElementById('stars-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  let W, H;
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+  function initStars() {
+    stars = [];
+    const count = Math.floor((W * H) / 5000);
+    for (let i = 0; i < count; i++) {
+      stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.2, alpha: Math.random() * 0.5 + 0.1, speed: Math.random() * 0.05 + 0.01, phase: Math.random() * Math.PI * 2 });
+    }
+  }
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    frame++;
+    stars.forEach(s => {
+      const twinkle = s.alpha + Math.sin(frame * s.speed + s.phase) * 0.2;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(148, 163, 184, ${Math.max(0, Math.min(1, twinkle))})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize(); initStars(); draw();
+  window.addEventListener('resize', () => { resize(); initStars(); });
+})();
+</script>
+</body>
+</html>
